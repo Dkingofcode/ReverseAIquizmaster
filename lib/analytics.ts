@@ -38,7 +38,59 @@ export interface AnalyticsData {
     shareRate: number
     returnRate: number
   }
+
 }
+export type RealTimeEvent =
+  | { type: "quiz_taken"; timestamp: string; data: { userName?: string; personalityType: string } }
+  | { type: "guess_made"; timestamp: string; data: { userName: string; guessed: string; actual: string; correct: boolean } }
+  | { type: "analytics_update"; timestamp: string; data: any }
+  | { type: "user_joined"; timestamp: string; data: { userName: string } }
+
+export interface AnalyticsOverview {
+  totalUsers: number
+  totalGuesses: number
+  totalQuizzes: number
+  averageAccuracy: number
+  activeUsers: number
+  retentionRate: number
+}
+
+export interface PersonalityTrends {
+  type: string
+  count: number
+  percentage: number
+  accuracy: number
+  trend: number // percentage change from previous period
+}
+
+export interface EngagementMetrics {
+  dailyActive: { date: string; users: number; guesses: number }[]
+  hourlyDistribution: { hour: number; activity: number }[]
+  streakDistribution: { streakLength: number; users: number }[]
+}
+
+
+export interface AccuracyTrends {
+  date: string
+  accuracy: number
+  totalGuesses: number
+}
+
+export interface TopPerformers {
+  user: LeaderboardEntry
+  rank: number
+  improvement: number // percentage change from previous period
+}
+
+export interface ChallengeMetrics {
+  completionRate: number
+  averageTimeToComplete: number // seconds
+  shareRate: number // percentage
+  returnRate: number // percentage of users who took multiple quizzes
+  
+}
+
+
 
 export class AnalyticsService {
   private static readonly ANALYTICS_KEY = "personality_analytics"

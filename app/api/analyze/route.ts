@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { PersonalityAnalyzer } from "@/lib/personality-analyzer"
+import { PersonalityAnalyzer } from "@/lib/personality-analysis"
 
 export async function POST(request: NextRequest) {
   try {

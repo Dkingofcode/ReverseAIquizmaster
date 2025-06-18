@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Wifi, WifiOff, Play, Pause, RefreshCw, Users, Activity, Clock, AlertCircle, CheckCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import PerformanceDashboard from "./performance-tracking";
+import { RealTimeEvent } from "@/lib/analytics"
 
 interface RealTimeAnalyticsProps {
   timeRange: "7d" | "30d" | "90d" | "all"
@@ -16,6 +17,7 @@ interface RealTimeAnalyticsProps {
 
 export default function RealTimeAnalytics({ timeRange }: RealTimeAnalyticsProps) {
   const { connected, connecting, error, userCount } = useWebSocket()
+  
   const { data, events, loading, lastUpdate, isLive, refreshData, toggleLive, clearEvents } =
     useRealTimeAnalytics(timeRange)
 
@@ -122,59 +124,57 @@ export default function RealTimeAnalytics({ timeRange }: RealTimeAnalyticsProps)
                     <p>Waiting for live activity...</p>
                   </div>
                 ) : (
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {events.map((event, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border-l-4 border-l-blue-500"
-                      >
-                        <div className="flex-shrink-0 mt-1">
-                          {event.type === "quiz_taken" && <CheckCircle className="w-4 h-4 text-green-500" />}
-                          {event.type === "guess_made" && (
-                            <div
-                              className={`w-4 h-4 rounded-full ${event.data.correct ? "bg-green-500" : "bg-red-500"}`}
-                            />
-                          )}
-                          {event.type === "user_joined" && <Users className="w-4 h-4 text-blue-500" />}
+                  events.map((event: RealTimeEvent, index: number) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border-l-4 border-l-blue-500"
+                    >
+                      <div className="flex-shrink-0 mt-1">
+                        {event.type === "quiz_taken" && <CheckCircle className="w-4 h-4 text-green-500" />}
+                        {event.type === "guess_made" && (
+                          <div
+                            className={`w-4 h-4 rounded-full ${event.data.correct ? "bg-green-500" : "bg-red-500"}`}
+                          />
+                        )}
+                        {event.type === "user_joined" && <Users className="w-4 h-4 text-blue-500" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-[#131118]">
+                            {event.type === "quiz_taken" && "Quiz Completed"}
+                            {event.type === "guess_made" && "Personality Guess"}
+                            {event.type === "user_joined" && "User Joined"}
+                          </span>
+                          <Badge
+                            variant={
+                              event.type === "quiz_taken"
+                                ? "default"
+                                : event.type === "guess_made"
+                                  ? event.data.correct
+                                    ? "default"
+                                    : "destructive"
+                                  : "secondary"
+                            }
+                            className="text-xs"
+                          >
+                            {event.type === "quiz_taken" && "New"}
+                            {event.type === "guess_made" && (event.data.correct ? "Correct" : "Wrong")}
+                            {event.type === "user_joined" && "Active"}
+                          </Badge>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-[#131118]">
-                              {event.type === "quiz_taken" && "Quiz Completed"}
-                              {event.type === "guess_made" && "Personality Guess"}
-                              {event.type === "user_joined" && "User Joined"}
-                            </span>
-                            <Badge
-                              variant={
-                                event.type === "quiz_taken"
-                                  ? "default"
-                                  : event.type === "guess_made"
-                                    ? event.data.correct
-                                      ? "default"
-                                      : "destructive"
-                                    : "secondary"
-                              }
-                              className="text-xs"
-                            >
-                              {event.type === "quiz_taken" && "New"}
-                              {event.type === "guess_made" && (event.data.correct ? "Correct" : "Wrong")}
-                              {event.type === "user_joined" && "Active"}
-                            </Badge>
-                          </div>
-                          <div className="text-sm text-[#6e6388]">
-                            {event.type === "quiz_taken" &&
-                              `${event.data.userName || "Anonymous"} got "${event.data.personalityType}"`}
-                            {event.type === "guess_made" &&
-                              `${event.data.userName} guessed "${event.data.guessed}" (actual: "${event.data.actual}")`}
-                            {event.type === "user_joined" && `${event.data.userName} joined the platform`}
-                          </div>
-                          <div className="text-xs text-[#6e6388] mt-1">
-                            {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true })}
-                          </div>
+                        <div className="text-sm text-[#6e6388]">
+                          {event.type === "quiz_taken" &&
+                            `${event.data.userName || "Anonymous"} got "${event.data.personalityType}"`}
+                          {event.type === "guess_made" &&
+                            `${event.data.userName} guessed "${event.data.guessed}" (actual: "${event.data.actual}")`}
+                          {event.type === "user_joined" && `${event.data.userName} joined the platform`}
+                        </div>
+                        <div className="text-xs text-[#6e6388] mt-1">
+                          {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true })}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))
                 )}
               </CardContent>
             </Card>

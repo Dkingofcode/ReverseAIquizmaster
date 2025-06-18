@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { personalityTypes } from "@/lib/personality-types"
+import { personalityTypes } from "@/lib/personality-type"
 import { LeaderboardService } from "@/lib/leaderboard"
 import { CheckCircle, XCircle, User } from "lucide-react"
 
